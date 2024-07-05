@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DayPicker } from "react-day-picker";
-import { format } from "date-fns";
+import { format, getUnixTime } from "date-fns"; // Import getUnixTime
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Line } from "react-chartjs-2";
@@ -24,7 +24,7 @@ const Index = () => {
   const [token, setToken] = useState("");
   const [dateRange, setDateRange] = useState({ from: null, to: null });
   const { data, error, isLoading, refetch } = useQuery({
-    queryKey: ["facebookData", { token, startDate: dateRange.from, endDate: dateRange.to }],
+    queryKey: ["facebookData", { token, startDate: dateRange.from ? getUnixTime(dateRange.from) : null, endDate: dateRange.to ? getUnixTime(dateRange.to) : null }], // Convert dates to unixtime
     queryFn: fetchFacebookData,
     enabled: false,
   });
