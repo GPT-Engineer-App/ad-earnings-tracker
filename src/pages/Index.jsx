@@ -1,10 +1,122 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DatePickerDemo } from "@/components/ui/date-picker";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Line } from "react-chartjs-2";
+import { toast } from "sonner";
+
+const fetchFacebookData = async ({ queryKey }) => {
+  const [_, { token, startDate, endDate }] = queryKey;
+  const response = await fetch(
+    `https://graph.facebook.com/v12.0/me/insights?metric=page_impressions,page_engaged_users&period=day&since=${startDate}&until=${endDate}&access_token=${token}`
+  );
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
 
 const Index = () => {
+  const [token, setToken] = useState("");
+  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const { data, error, isLoading, refetch } = useQuery({
+    queryKey: ["facebookData", { token, startDate: dateRange.startDate, endDate: dateRange.endDate }],
+    queryFn: fetchFacebookData,
+    enabled: false,
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!token || !dateRange.startDate || !dateRange.endDate) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    refetch();
+  };
+
   return (
-    <div className="text-center">
-      <h1 className="text-3xl">Your Blank Canvas</h1>
-      <p>Chat with the agent to start making edits.</p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Facebook Instream Ads Earnings and Views</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              placeholder="Facebook Page Token"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+            />
+            <DatePickerDemo
+              selected={dateRange}
+              onSelect={(range) => setDateRange(range)}
+            />
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Loading..." : "Fetch Data"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {error && <p className="text-red-500">{error.message}</p>}
+
+      {data && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Graph</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Line
+                data={{
+                  labels: data.map((item) => item.date),
+                  datasets: [
+                    {
+                      label: "Earnings",
+                      data: data.map((item) => item.earnings),
+                      borderColor: "rgba(75,192,192,1)",
+                      fill: false,
+                    },
+                    {
+                      label: "Views",
+                      data: data.map((item) => item.views),
+                      borderColor: "rgba(153,102,255,1)",
+                      fill: false,
+                    },
+                  ],
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Video List</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Views</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.map((video) => (
+                    <TableRow key={video.id}>
+                      <TableCell>{video.title}</TableCell>
+                      <TableCell>{video.views}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 };
