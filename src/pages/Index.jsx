@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DatePickerDemo } from "@/components/ui/date-picker";
+import { DateRangePicker } from "react-day-picker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Line } from "react-chartjs-2";
@@ -21,16 +21,16 @@ const fetchFacebookData = async ({ queryKey }) => {
 
 const Index = () => {
   const [token, setToken] = useState("");
-  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
   const { data, error, isLoading, refetch } = useQuery({
-    queryKey: ["facebookData", { token, startDate: dateRange.startDate, endDate: dateRange.endDate }],
+    queryKey: ["facebookData", { token, startDate: dateRange.from, endDate: dateRange.to }],
     queryFn: fetchFacebookData,
     enabled: false,
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!token || !dateRange.startDate || !dateRange.endDate) {
+    if (!token || !dateRange.from || !dateRange.to) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -50,7 +50,7 @@ const Index = () => {
               value={token}
               onChange={(e) => setToken(e.target.value)}
             />
-            <DatePickerDemo
+            <DateRangePicker
               selected={dateRange}
               onSelect={(range) => setDateRange(range)}
             />
