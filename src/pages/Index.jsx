@@ -11,8 +11,10 @@ import { toast } from "sonner";
 
 const fetchFacebookData = async ({ queryKey }) => {
   const [_, { token, startDate, endDate }] = queryKey;
+  const since = Math.floor(new Date(startDate).getTime() / 1000);
+  const until = Math.floor(new Date(endDate).getTime() / 1000);
   const response = await fetch(
-    `https://graph.facebook.com/v12.0/me/insights?metric=page_impressions,page_engaged_users&period=day&since=${Math.floor(new Date(startDate).getTime() / 1000)}&until=${Math.floor(new Date(endDate).getTime() / 1000)}&access_token=${token}`
+    `https://graph.facebook.com/v12.0/me/insights?metric=page_impressions,page_engaged_users&period=day&since=${since}&until=${until}&access_token=${token}`
   );
   if (!response.ok) {
     throw new Error("Network response was not ok");
