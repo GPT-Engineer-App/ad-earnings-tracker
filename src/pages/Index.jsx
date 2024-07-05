@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DateRangePicker } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Line } from "react-chartjs-2";
@@ -50,9 +51,15 @@ const Index = () => {
               value={token}
               onChange={(e) => setToken(e.target.value)}
             />
-            <DateRangePicker
+            <DayPicker
+              mode="range"
               selected={dateRange}
-              onSelect={(range) => setDateRange(range)}
+              onSelect={setDateRange}
+              footer={
+                dateRange.from && dateRange.to
+                  ? `Selected from ${format(dateRange.from, "PPP")} to ${format(dateRange.to, "PPP")}`
+                  : "Please select a date range"
+              }
             />
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Loading..." : "Fetch Data"}
