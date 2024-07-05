@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DayPicker } from "react-day-picker";
-import { format, getUnixTime } from "date-fns"; // Import getUnixTime
+import { format, getUnixTime } from "date-fns"; // Import format and getUnixTime
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Line } from "react-chartjs-2";
